@@ -2,18 +2,20 @@ package com.example.lab1fmad
 
 import kotlin.random.Random
 
+data class NormalizationResult(
+    val source: List<Int>,
+    val max: Int?,
+    val normalized: List<Double>
+)
 
-class LabLogic(private val numbersProvider: () -> List<Int> = ::defaultNumbers) {
-    val numbers: List<Int> get() = numbersProvider()
+class LabLogic(private val random: Random = Random.Default) {
 
-    companion object {
-        private fun defaultNumbers(size: Int = 20, min: Int = -20, max: Int = 20): List<Int> =
-            require(min <= max).let { List(size) { Random.nextInt(from = min, until = max + 1) } }
-    }
+    fun generateNumbers(size: Int = 10, min: Int = 1, max: Int = 100): List<Int> =
+        require(size > 0 && min <= max).let { List(size) { random.nextInt(min, max + 1) } }
 
-    fun sumOfNegativeElements(nums: List<Int> = numbers): Int =
-        nums.asSequence().filter { it < 0 }.sum()
-
-    fun countOfPositiveElements(nums: List<Int> = numbers): Int =
-        nums.asSequence().count { it > 0 }.toInt()
+    fun normalizeByMax(nums: List<Int>): NormalizationResult =
+        nums.maxOrNull()
+            ?.takeIf { it != 0 }
+            ?.let { max -> NormalizationResult(nums, max, nums.map { it.toDouble() / max }) }
+            ?: NormalizationResult(nums, nums.maxOrNull(), emptyList())
 }
